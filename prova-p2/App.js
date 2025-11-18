@@ -1,11 +1,14 @@
-import { Pressable, StyleSheet, Text, View, FlatList } from 'react-native';
-import { Button, TextInput } from 'react-native-web';
+import { Pressable, StyleSheet, Text, View, FlatList } from 'react-native'
+import { Button, TextInput } from 'react-native-web'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faUser } from '@fortawesome/free-regular-svg-icons'
+import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons'
 
 export default function App() {
   const anos = [2024,2023,2022,2021,2020]
   const devs = [
-    {name: 'Alisson Curvina', linkedin: 'linkedin.com', github: 'github.com'},
-    {name: 'Evilly Costa', linkedin: 'linkedin.com', github: 'github.com'}
+    {name: 'Alisson Curvina', linkedin: 'linkedin.com', github: 'github.com', profileImage: './prova-p2/assets/user.png'},
+    {name: 'Evilly Costa', linkedin: 'linkedin.com', github: 'github.com', profileImage: './prova-p2/assets/user.png'}
   ]
 
   return (
@@ -73,9 +76,15 @@ export default function App() {
       <FlatList 
         horizontal={true}
         data={devs}
-        // Continuar daqui
-        //renderItem={({ item }) => <Text>{item.name}</Text>}
-        //keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View>
+            <FontAwesomeIcon icon={faUser}/>
+            <Text>{item.name}</Text>
+            <FontAwesomeIcon icon={faLinkedin}/><Text>{item.linkedin}</Text>
+            <FontAwesomeIcon icon={faGithub}/><Text>{item.github}</Text>
+          </View>
+        )}
+        keyExtractor={(item, index) => index.toString()}
         />
     </View>
   );
