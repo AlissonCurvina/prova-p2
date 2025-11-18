@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, FlatList } from 'react-native'
+import { Pressable, StyleSheet, Text, View, FlatList, Linking } from 'react-native'
 import { Button, TextInput } from 'react-native-web'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faUser } from '@fortawesome/free-regular-svg-icons'
@@ -7,8 +7,8 @@ import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons'
 export default function App() {
   const anos = [2024,2023,2022,2021,2020]
   const devs = [
-    {name: 'Alisson Curvina', linkedin: 'linkedin.com', github: 'github.com', profileImage: './prova-p2/assets/user.png'},
-    {name: 'Evilly Costa', linkedin: 'linkedin.com', github: 'github.com', profileImage: './prova-p2/assets/user.png'}
+    {name: 'Alisson Curvina', linkedin: 'https://www.linkedin.com/in/alisson-curvina', github: 'https://github.com/AlissonCurvina', profileImage: './prova-p2/assets/user.png'},
+    {name: 'Evilly Costa', linkedin: 'https://www.linkedin.com/in/evilly-nascimento-costa/', github: 'https://github.com/EvillyCosta', profileImage: './prova-p2/assets/user.png'}
   ]
 
   return (
@@ -80,7 +80,10 @@ export default function App() {
           <View>
             <FontAwesomeIcon icon={faUser}/>
             <Text>{item.name}</Text>
-            <FontAwesomeIcon icon={faLinkedin}/><Text>{item.linkedin}</Text>
+            <FontAwesomeIcon icon={faLinkedin}/>
+            <Text style={styles.link} onPress={() => Linking.openURL    (item.linkedin)}>
+              {item.linkedin}
+              </Text>
             <FontAwesomeIcon icon={faGithub}/><Text>{item.github}</Text>
           </View>
         )}
