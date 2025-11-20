@@ -41,7 +41,14 @@ app.get('/searchPhotos', async (req,res) => {
     maxPhotos = photos.length < maxPhotos ? photos.length : maxPhotos
     
     for(let i = 0; i < maxPhotos; i++) {
-        filteredPhotos.push(photos[i])
+        formattedResponse = {
+            imageDate: photos[i].data[0].date_created,
+            imageUrl: photos[i].links[0].href,
+            imageTitle: photos[i].data[0].title,
+            imageDescription: photos[i].data[0].description
+        }
+
+        filteredPhotos.push(formattedResponse)
     }
     
     res.json(filteredPhotos)
