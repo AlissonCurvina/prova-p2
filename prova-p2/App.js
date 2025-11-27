@@ -1,10 +1,14 @@
+import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View, FlatList, Linking, Image } from 'react-native'
 import { Button, ScrollView, TextInput } from 'react-native-web'
+import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faUser } from '@fortawesome/free-regular-svg-icons'
 import { faLinkedin, faGithub } from '@fortawesome/free-brands-svg-icons'
+import { text } from '@fortawesome/fontawesome-svg-core'
 
 export default function App() {
+
   const anos = [
     2024,2023,2022,2021,2020
   ]
@@ -13,12 +17,26 @@ export default function App() {
     {name: 'Alisson Curvina', linkedin: 'https://www.linkedin.com/in/alisson-curvina', github: 'https://github.com/AlissonCurvina', profileImage: './prova-p2/assets/user.png'},
     {name: 'Evilly Costa', linkedin: 'https://www.linkedin.com/in/evilly-nascimento-costa/', github: 'https://github.com/EvillyCosta', profileImage: './prova-p2/assets/user.png'}
   ]
+  const URL_BASE = "http://localhost:3000/"
 
-  const photoOfTheDay = {
-    imageDate: "2022-11-19",
-    imageUri: encodeURI("https://images-assets.nasa.gov/video/Moon and Saturn/Moon and Saturn~large.jpg"),
-    imageTitle: "Orion Sees the Moon and Saturn"
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(URL_BASE + "searchPhotos", {
+        params: {
+          q: searchText,
+          year: selectedYear   
+        }
+      })
+
+      setSearchPhotos(response.data)
+
+    } catch (error) {
+      console.error("Erro na busca:", error)
+    }
   }
+
+
+  const [photoOfTheDay, setPhotoOfTheDay] = useState(null)
 
   const photoOfTheDayList = [
     {
@@ -43,31 +61,27 @@ export default function App() {
     }
   ]
 
-  const searchPhotos = [
-    {
-      imageDate: "2022-11-19",
-      imageUri: encodeURI("https://images-assets.nasa.gov/video/Moon and Saturn/Moon and Saturn~large.jpg"),
-      imageTitle: "Orion Sees the Moon and Saturn"
-    },
-    {
-      imageDate: "2022-11-21",
-      imageUri: encodeURI("https://images-assets.nasa.gov/video/Moon Below Orion art001m1013251756/Moon Below Orion art001m1013251756~large.jpg"),
-      imageTitle: "Flight Day 6: Orion Focuses on Moon"
-    },
-    {
-      imageDate: "2022-03-28",
-      imageUri: encodeURI("https://images-assets.nasa.gov/video/NASA Explores the Moon and Beyond/NASA Explores the Moon and Beyond~large.jpg"),
-      imageTitle: "NASA Explores the Moon and Beyond"
-    },
-    {
-      imageDate: "2022-03-28",
-      imageUri: encodeURI("https://images-assets.nasa.gov/video/NASA Explores the Moon and Beyond/NASA Explores the Moon and Beyond~large.jpg"),
-      imageTitle: "NASA Explores the Moon and Beyond"
-    }
-  ]
+  const [searchPhotos, setSearchPhotos] = useState(null)
+  const [selectedYear, setSelectedYear] = useState(null)
+  const [searchText, setSearchText] = useState('')
 
   return (
-    <View style={styles.container}>
+    <View 
+      style={styles.container}
+      onLayout={() => {
+        if (!photoOfTheDay) {
+          axios.get(URL_BASE + "getPOTD")
+            .then(response => {
+              setPhotoOfTheDay({
+                imageDate: response.data.imageDate,
+                imageUri: response.data.imageUrl,
+                imageTitle: response.data.imageTitle,
+              })
+            })
+            .catch(error => console.log("Erro na API:", error))
+        }
+      }}
+    >
       <ScrollView >
         <View style={styles.header}>
           <Text style={styles.pageName}>Daily Nasa</Text>
@@ -78,17 +92,27 @@ export default function App() {
         <Text style={styles.heading}>
           Foto do dia
         </Text>
-        <View style={styles.contentSection}>
-          <Image
-            source={{ uri: photoOfTheDay.imageUri }}
-            style={styles.photoOfTheDay}
-            resizeMode="cover"/>
-          <Text style={styles.centeredText}>
-            {photoOfTheDay.imageTitle}
-          </Text>
-          <Text style={styles.centeredText}>
-            {photoOfTheDay.imageDate}
-          </Text>
+
+        {/* FOTO DO DIA */}
+        <View>
+          {photoOfTheDay ? (
+            <View style={styles.contentSection}>
+              <Image
+                source={{ uri: photoOfTheDay.imageUri }}
+                style={styles.photoOfTheDay}
+                resizeMode="cover" />
+              <Text style={styles.centeredText}>
+                {photoOfTheDay.imageTitle}
+              </Text>
+              <Text style={styles.centeredText}>
+                {photoOfTheDay.imageDate}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.contentSection}>
+              <Text>Carregando...</Text>
+            </View>
+          )}
         </View>
         <View style={styles.flatListContainer}>
           <FlatList 
@@ -122,8 +146,11 @@ export default function App() {
         <View style={styles.divider}></View>
         
         <View style={styles.yearArea}>
-          <Pressable style={styles.yearButton}>
-            <Text style={styles.yearButtonText}>
+          <Pressable 
+            style={styles.yearButton}
+            onPress={ () => setSelectedYear(2025)}>
+            <Text 
+              style={styles.yearButtonText}>
               2025
             </Text>
           </Pressable>
@@ -132,19 +159,36 @@ export default function App() {
             horizontal={true}
             data={anos}
             contentContainerStyle={styles.flatListContainer}
-            renderItem={({item}) => <Pressable style={styles.yearButton}><Text style={styles.yearButtonText}>{item}</Text></Pressable>}/>
+            renderItem={({item}) => (
+              <Pressable 
+                style={styles.yearButton}
+                onPress={ () => setSelectedYear(item)}>
+                <Text style={styles.yearButtonText}>{item}</Text>
+              </Pressable>)}/>
           </View>
         </View>
+        
 
         <View style={styles.divider}></View>
         
+        {/* AREA DE BUSCA */}
+
         <View style={styles.searchArea}>
           <TextInput 
             style={styles.searchInput} 
+            value={searchText}
+            onChangeText={(text) => setSearchText(text)}
             placeholder='Pesquisar imagens'>
           </TextInput>
-          <Pressable style={styles.searchButton}><Text style={styles.searchButtonText}>Buscar</Text></Pressable>
+          <Pressable 
+            style={styles.searchButton}
+            onPress={ () => handleSearch()}>
+            <Text style={styles.searchButtonText}>Buscar</Text>
+          </Pressable>
+        
         </View>
+
+        {/* RESULTADOS DA PESQUISA */}
         
         <Text style={styles.heading}>
           Resultados da pesquisa
@@ -153,32 +197,42 @@ export default function App() {
         <Text style={styles.centeredText}>
           Mostrando imagens de termo do ano ano
         </Text>
-
-        <View style={styles.flatListContainer}>
-          <FlatList 
-            horizontal={true}
-            data={searchPhotos}
-            renderItem={({item}) => (
-            <View style={styles.imageCard}>
-              <Text style={styles.imageTitle}>
-                {item.imageTitle}
-              </Text>
-              <Image
-                source={{ uri: item.imageUri }}
-                style={styles.image}
-                resizeMode="cover"
-                keyExtractor={(item, index) => index.toString()}
-              />
-              <Text style={styles.imageDate}>
-                {item.imageDate}
-              </Text>
-              <Text style={styles.imageDescription}>
-                lorem ipsum dolor sit amet
-              </Text>
+        <View>
+          {searchPhotos ? (
+            <FlatList 
+              horizontal={true}
+              data={searchPhotos}
+              renderItem={({item}) => (
+              <View style={styles.imageCard}>
+                <Text style={styles.imageTitle}>
+                  {item.imageTitle}
+                </Text>
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  style={styles.image}
+                  resizeMode="cover"
+                  keyExtractor={(item, index) => index.toString()}
+                />
+                <Text style={styles.imageDate}>
+                  {item.imageDate}
+                </Text>
+                <Text style={styles.imageDescription}>
+                  lorem ipsum dolor sit amet
+                </Text>
+              </View>
+              )}
+            />
+          ) : (
+            <View style={styles.contentSection}>
+              <Text>Aguardando pesquisa...</Text>
             </View>
           )}
-        />
         </View>
+        <View style={styles.flatListContainer}>
+          
+        </View>
+
+        {/* RODAPE */}
 
         <Text styles={styles.heading}>Desenvolvido por</Text>
 
@@ -204,7 +258,7 @@ export default function App() {
         </View>
       </ScrollView>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -393,4 +447,4 @@ const styles = StyleSheet.create({
     color: '#00f',
     textDecorationLine: 'underline',
   },
-});
+})
