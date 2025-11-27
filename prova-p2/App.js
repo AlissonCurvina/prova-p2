@@ -142,8 +142,6 @@ export default function App() {
         <Text>
           Filtros
         </Text>
-
-        <View style={styles.divider}></View>
         
         <View style={styles.yearArea}>
           <Pressable 
@@ -166,10 +164,10 @@ export default function App() {
                 <Text style={styles.yearButtonText}>{item}</Text>
               </Pressable>)}/>
           </View>
+          <Text style={styles.selectedYear}>
+            Ano Selecionado: {selectedYear}
+          </Text>
         </View>
-        
-
-        <View style={styles.divider}></View>
         
         {/* AREA DE BUSCA */}
 
@@ -178,7 +176,8 @@ export default function App() {
             style={styles.searchInput} 
             value={searchText}
             onChangeText={(text) => setSearchText(text)}
-            placeholder='Pesquisar imagens'>
+            placeholderTextColor="#888"
+            placeholder='Pesquisar...'>
           </TextInput>
           <Pressable 
             style={styles.searchButton}
@@ -194,9 +193,6 @@ export default function App() {
           Resultados da pesquisa
         </Text>
 
-        <Text style={styles.centeredText}>
-          Mostrando imagens de termo do ano ano
-        </Text>
         <View>
           {searchPhotos ? (
             <FlatList 
@@ -217,7 +213,7 @@ export default function App() {
                   {item.imageDate}
                 </Text>
                 <Text style={styles.imageDescription}>
-                  lorem ipsum dolor sit amet
+                  {item.imageDescription}
                 </Text>
               </View>
               )}
@@ -234,7 +230,7 @@ export default function App() {
 
         {/* RODAPE */}
 
-        <Text styles={styles.heading}>Desenvolvido por</Text>
+        <Text style={styles.heading}>Desenvolvido por</Text>
 
         <View style={styles.divider}></View>
         
@@ -243,14 +239,32 @@ export default function App() {
             horizontal={true}
             data={devs}
             renderItem={({ item }) => (
-              <View>
-                <FontAwesomeIcon icon={faUser}/>
-                <Text>{item.name}</Text>
-                <FontAwesomeIcon icon={faLinkedin}/>
-                <Text style={styles.link} onPress={() => Linking.openURL    (item.linkedin)}>
-                  {item.linkedin}
-                  </Text>
-                <FontAwesomeIcon icon={faGithub}/><Text>{item.github}</Text>
+              <View style={styles.devCard}>
+                <View style={styles.devInfo}>
+                  <FontAwesomeIcon icon={faUser} size={40} color="#333"/>
+                  <Text>{item.name}</Text>
+                </View>
+                <View style={styles.devInfo}>
+                  <Pressable
+                    style={styles.devInfo}
+                    onPress={() => Linking.openURL(item.linkedin)}>
+                    <FontAwesomeIcon 
+                      icon={faLinkedin} 
+                      size={40}
+                      color="#0077b5"/>
+                    <Text style={styles.link}>
+                      Linkedin
+                    </Text>
+                  </Pressable>
+                </View>
+                <View style={styles.devInfo}>
+                  <Pressable
+                    style={styles.devInfo}
+                    onPress={() => Linking.openURL(item.github)}>
+                    <FontAwesomeIcon icon={faGithub} size={40} color="#333"/>
+                    <Text>Github</Text>
+                  </Pressable>
+                </View>
               </View>
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -292,7 +306,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 32,
     marginBottom: 10,
-    color: '#1C1C1C',
+    color: '#000',
   },
 
   heading: {
@@ -300,15 +314,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#1C1C1C',
+    color: '#001e47ff',
   },
 
   divider: {
     width: '100%',
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: '#001e4755',
     marginBottom: 10,
-    color: '#0047AB',
   },
 
   photoOfTheDay: {
@@ -361,11 +374,20 @@ const styles = StyleSheet.create({
     height: 20,
   },
 
+  yearArea: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginVertical: 10,
+  },  
+
   yearList: {
     flex: 1,
     width: '100%',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginVertical: 10,
   },
 
   yearButton: {
@@ -373,18 +395,24 @@ const styles = StyleSheet.create({
     padding: 6,
     marginHorizontal: 4, 
     borderRadius: 8,
-    borderColor: '#000000',
+    borderColor: '#001e4755',
     justifyContent: 'center',
     alignItems: 'center',
     minWidth: 120,
     height: 42,
-    marginBottom: 10,
   },
 
   yearButtonText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#1C1C1C',
+    color: '#000',
+    fontWeight: 'bold',
+  },
+
+  selectedYear: {
+    fontSize: 20, 
+    color: '#001e47ff', 
+    textAlign: 'center',
   },
 
   searchArea: {
@@ -398,34 +426,47 @@ const styles = StyleSheet.create({
   searchInput: {
     borderWidth: 2,
     borderRadius: 8,
+    borderColor: '#001e47ff',
     padding: 6,
     margin: 4,
-    width: '70%',
-    textAlign: 'center',
+    width: '80%',
+    textAlign: 'left',
   },
 
   searchButton: {
     borderWidth: 2,
     borderRadius: 8,
+    backgroundColor: '#001e47ff',
     padding: 6,
     margin: 4,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '20%',
   },
 
   searchButtonText: {
     textAlign: 'left',
-    color: '#1C1C1C',
+    color: '#fff',
   },
 
   devCard: {
-    alignItems: 'center',
-    marginHorizontal: 15,
-    padding: 10,
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    flex: 1,
+    marginHorizontal: 10,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 8,
-    width: 150,
+    borderColor: '#ddd',
+    width: 250,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  devInfo: {
+    flexDirection: 'row',
+    alignItems: 'center', 
+    marginBottom: 10,
+    width: '100%',
   },
 
   devName: {
