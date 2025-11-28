@@ -1,7 +1,10 @@
 require('dotenv').config()
 const express = require('express')
-const app = express()
+const app = express() 
+const cors = require('cors')
 const axios = require('axios')
+
+app.use(cors())
 
 app.get('/getPOTD', async (req, res) => {
     const potdClient = axios.create({
@@ -14,7 +17,13 @@ app.get('/getPOTD', async (req, res) => {
         }
     })
 
-    res.json(result.data)
+    const potd = {
+        imageDate: result.data.date,
+        imageUrl: result.data.url,
+        imageTitle: result.data.title,
+    }
+
+    res.json(potd)
 })
 
 app.get('/searchPhotos', async (req,res) => {
@@ -24,7 +33,7 @@ app.get('/searchPhotos', async (req,res) => {
 
     const result = await imageLibClient.get('', {
         params: {
-            q: req.query.q 
+            q: req.query.q
         }
     })
 
